@@ -83,6 +83,10 @@ func dataSourceRecordRead(d *schema.ResourceData, meta interface{}) error {
 
 func ParseAddress(address string, cidr string) (*net.IP, error) {
 	ipaddr := net.ParseIP(address)
+	if ipaddr == nil {
+		return nill, fmt.Errorf("Unable to parse IP address %v", address)
+	}
+
 	if err != nil {
 		return nil, err
 	}
