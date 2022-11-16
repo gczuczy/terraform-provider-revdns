@@ -82,7 +82,7 @@ func dataSourceRecordRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func ParseAddress(address string, cidr string) (*net.IP, error) {
-	ipaddr, _, err := net.ParseCIDR(address + "/32")
+	ipaddr := net.ParseIP(address)
 	if err != nil {
 		return nil, err
 	}
