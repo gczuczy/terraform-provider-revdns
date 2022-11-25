@@ -4,6 +4,7 @@ import (
 	"net"
 	"fmt"
 	"strings"
+	"math"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -63,14 +64,13 @@ func dataSourceRecordRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(address)
 
-	var ipslice []string = make([]string, 4-subnet.octets)
-	for i:=uint(3); i>=subnet.octets; i-- {
-		ipslice[3-i] = fmt.Sprintf("%v", ipaddress.To4()[i])
+	revname, err := RevName(*ipaddress, subnet.netmask)
+	if err != nil {
+		return err
 	}
-	revip := strings.Join(ipslice, `.`)
 
-	d.Set("record_short", revip)
-	d.Set("record_fqdn", fmt.Sprintf("%v.%v", revip, subnet.zone))
+	d.Set("record_short", revname)
+	d.Set("record_fqdn", fmt.Sprintf("%v.%v", revname, subnet.zone))
 
 	fqdn := fmt.Sprintf("%v.%v", hostname, domain)
 	if fqdn[len(fqdn)-1] != '.' {
@@ -97,4 +97,51 @@ func ParseAddress(address string, cidr string) (*net.IP, error) {
 	}
 
 	return &ipaddr, nil
+}
+
+func RevName(ipaddress net.IP, netmask uint) (string, error) {
+	addrv4 := ipaddress.To4()
+	addrv6 := ipaddress.To16()
+	isv6 := false
+	if addrv4 != nil {
+		isv6 = false
+	} else if addrv4 == nil && addrv6 != nil {
+		isv6 = true
+	} else {
+		return "", fmt.Errorf("Neither v4 or v6")
+	}
+
+	var recname string
+	if isv6 {
+		mask_quadlets := uint(math.Ceil(float64(netmask)/4))
+		addr_quadlets := uint(math.Ceil(float64(128-netmask)/4))
+		strnet := ""
+		addrv6 := ipaddress.To16()
+		fmt.Printf("RevName6(%v, %v):\n - mask quadlets: %v\n - addr quadlets: %v\n",
+			ipaddress, netmask, mask_quadlets, addr_quadlets);
+		if addrv6 == nil {
+			return "", fmt.Errorf("Not a valid v6 address")
+		}
+
+		// write the whole v6 address as a string
+		// each character is a quadlet (4 bits) here
+		for i:=uint(0); i<=uint(len(addrv6))-1; i++ {
+			strnet += fmt.Sprintf("%02x", addrv6[i])
+		}
+		strbytes := []byte(strnet)
+
+		var recbytes []string = make([]string, addr_quadlets)
+		for i,j := uint(len(strbytes)), 0; i > mask_quadlets; i,j = i-1, j+1 {
+			recbytes[j] = string(strbytes[i-1])
+		}
+		recname = strings.Join(recbytes, ".")
+	} else {
+		octets := netmask/8
+		var ipslice []string = make([]string, 4-octets)
+		for i:=uint(3); i>=octets; i-- {
+			ipslice[3-i] = fmt.Sprintf("%v", addrv4[i])
+		}
+		recname = strings.Join(ipslice, `.`)
+	}
+	return recname, nil
 }

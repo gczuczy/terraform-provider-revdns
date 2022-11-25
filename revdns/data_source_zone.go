@@ -11,7 +11,7 @@ type IPSubnet struct {
 	cidr string
 	zone string
 	netmask uint
-	octets uint
+	revparts uint
 	isv6 bool
 }
 
@@ -31,7 +31,7 @@ func dataSourceZone() *schema.Resource {
 				Type: schema.TypeInt,
 				Computed: true,
 			},
-			"octets": {
+			"parts": {
 				Type: schema.TypeInt,
 				Computed: true,
 			},
@@ -50,7 +50,7 @@ func dataSourceZoneRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(cidr)
 	d.Set("netmask", subnet.netmask)
-	d.Set("octets", subnet.octets)
+	d.Set("parts", subnet.revparts)
 	d.Set("zone_name", subnet.zone)
 
 	return nil
@@ -80,7 +80,7 @@ func ParseCIDR(cidr string) (*IPSubnet, error) {
 	}
 
 	var zname string
-	var octets uint
+	var revparts uint
 
 	if !isv6 {
 		reversed := [...]byte{ipaddr.To4()[3], ipaddr.To4()[2], ipaddr.To4()[1], ipaddr.To4()[0]}
@@ -88,31 +88,38 @@ func ParseCIDR(cidr string) (*IPSubnet, error) {
 		if ones < 8 {
 			return nil, fmt.Errorf("Netmasks less than 8 not supported")
 		} else if ones < 16 {
-			octets = 1
+			revparts = 1
 			// 8 to 16
 			zname = fmt.Sprintf("%v.in-addr.arpa.", reversed[3])
 		} else if ones < 24 {
-			octets = 2
+			revparts = 2
 			zname = fmt.Sprintf("%v.%v.in-addr.arpa.", reversed[2], reversed[3])
 		} else if ones < 32 {
-			octets = 3
+			revparts = 3
 			zname = fmt.Sprintf("%v.%v.%v.in-addr.arpa.", reversed[1], reversed[2], reversed[3])
 		} else {
 			return nil, fmt.Errorf("Netmask of 32 is not supported")
 		}
 	} else {
-		octets = uint(ones)/4
+		if ones%4 != 0 {
+			return nil, fmt.Errorf("Non 4-divisable masks(%v) are currently not supported", ones)
+		} else if ones == 0 {
+			return nil, fmt.Errorf("Netmask of 0 is not supported")
+		} else if ones == 128 {
+			return nil, fmt.Errorf("Netmask of 128 is not supported")
+		}
+		quadlets := uint(ones)/4
 		strnet := ""
-		for i:=uint(0); i<octets; i++ {
-			strnet += fmt.Sprintf("%x", addrv6[i])
+		for i:=0; i<len(addrv6); i++ {
+			strnet += fmt.Sprintf("%02x", addrv6[i])
 		}
 		strbytes := []byte(strnet)
 		zname = ""
-		for i := len(strbytes)-1; i>=0; i-- {
+		for i := int(quadlets)-1; i>=0; i-- {
 			zname += fmt.Sprintf("%v.", string(strbytes[i]))
 		}
 		zname += "ip6.arpa."
 	}
 
-	return &IPSubnet{cidr, zname, uint(ones), octets, isv6}, nil
+	return &IPSubnet{cidr, zname, uint(ones), revparts, isv6}, nil
 }

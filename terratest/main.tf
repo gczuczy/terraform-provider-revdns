@@ -19,6 +19,10 @@ data "revdns_zone" "revzone3" {
   cidr = "172.16.0.0/12"
 }
 
+data "revdns_zone" "revzone6-1" {
+  cidr = "2001:db8::/32"
+}
+
 data "revdns_record" "record1" {
   zoneid = "10.0.0.0/8"
   address = "10.254.3.0"
@@ -41,6 +45,13 @@ data "revdns_record" "record3" {
   hostname = "test3"
 }
 
+data "revdns_record" "record6-1" {
+  zoneid = "2001:db8::/32"
+  address = "2001:db8::ae1f:6bff:feb1:de80"
+  domain = "example.com"
+  hostname = "test1"
+}
+
 output "rev1" {
   description = "Rev1 zone data source"
   value = data.revdns_zone.revzone1
@@ -56,6 +67,11 @@ output "rev3" {
   value = data.revdns_zone.revzone3
 }
 
+output "rev6-1" {
+  description = "Rev6-1 zone data source"
+  value = data.revdns_zone.revzone6-1
+}
+
 output "record1" {
   description = "Address test 1"
   value = data.revdns_record.record1
@@ -69,4 +85,9 @@ output "record2" {
 output "record3" {
   description = "Address test 1"
   value = data.revdns_record.record3
+}
+
+output "record6-1" {
+  description = "Address test 6-1"
+  value = data.revdns_record.record6-1
 }
