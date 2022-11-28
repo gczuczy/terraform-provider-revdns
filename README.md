@@ -18,66 +18,66 @@ First, as usual, include the providers:
 
 Next, a zone has to be declared:
 
-  data "revdns_zone" "revzone4-1" {
-    cidr = "172.16.0.0/12"
-  }
-  
-  data "revdns_zone" "revzone6-1" {
-    cidr = "2001:db8::/32"
-  }
+    data "revdns_zone" "revzone4-1" {
+      cidr = "172.16.0.0/12"
+    }
+    
+    data "revdns_zone" "revzone6-1" {
+      cidr = "2001:db8::/32"
+    }
 
 After that, add records to the zones:
 
-  data "revdns_record" "record4-1" {
-    zoneid = "172.16.0.0/12"
-    address = "172.17.42.2"
-    domain = "example.com"
-    hostname = "test3"
-  }
-  
-  data "revdns_record" "record6-1" {
-    zoneid = "2001:db8::/32"
-    address = "2001:db8::ae1f:6bff:feb1:de80"
-    domain = "example.com"
-    hostname = "test1"
-  }
+    data "revdns_record" "record4-1" {
+      zoneid = "172.16.0.0/12"
+      address = "172.17.42.2"
+      domain = "example.com"
+      hostname = "test3"
+    }
+    
+    data "revdns_record" "record6-1" {
+      zoneid = "2001:db8::/32"
+      address = "2001:db8::ae1f:6bff:feb1:de80"
+      domain = "example.com"
+      hostname = "test1"
+    }
 
 The zone and record providers are publishing the following fields, to be referenced in the DNS provider's configuration:
 
-  rev3 = {
-    "cidr" = "172.16.0.0/12"
-    "id" = "172.16.0.0/12"
-    "netmask" = 12
-    "parts" = 1
-    "zone_name" = "172.in-addr.arpa."
-  }
-  rev6 = {
-    "cidr" = "2001:db8::/32"
-    "id" = "2001:db8::/32"
-    "netmask" = 32
-    "parts" = 0
-    "zone_name" = "8.b.d.0.1.0.0.2.ip6.arpa."
-  }
-  record3 = {
-    "address" = "172.17.42.2"
-    "domain" = "example.com"
-    "fqdn" = "test3.example.com."
-    "hostname" = "test3"
-    "id" = "172.17.42.2"
-    "record_fqdn" = "2.42.17.172.in-addr.arpa."
-    "record_short" = "2.42.17"
-    "zoneid" = "172.16.0.0/12"
-  }
-  record6-1 = {
-    "address" = "2001:db8::ae1f:6bff:feb1:de80"
-    "domain" = "example.com"
-    "fqdn" = "test1.example.com."
-    "hostname" = "test1"
-    "id" = "2001:db8::ae1f:6bff:feb1:de80"
-    "record_fqdn" = "0.8.e.d.1.b.e.f.f.f.b.6.f.1.e.a.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."
-    "record_short" = "0.8.e.d.1.b.e.f.f.f.b.6.f.1.e.a.0.0.0.0.0.0.0.0"
-    "zoneid" = "2001:db8::/32"
-  }
+    rev3 = {
+      "cidr" = "172.16.0.0/12"
+      "id" = "172.16.0.0/12"
+      "netmask" = 12
+      "parts" = 1
+      "zone_name" = "172.in-addr.arpa."
+    }
+    rev6 = {
+      "cidr" = "2001:db8::/32"
+      "id" = "2001:db8::/32"
+      "netmask" = 32
+      "parts" = 0
+      "zone_name" = "8.b.d.0.1.0.0.2.ip6.arpa."
+    }
+    record3 = {
+      "address" = "172.17.42.2"
+      "domain" = "example.com"
+      "fqdn" = "test3.example.com."
+      "hostname" = "test3"
+      "id" = "172.17.42.2"
+      "record_fqdn" = "2.42.17.172.in-addr.arpa."
+      "record_short" = "2.42.17"
+      "zoneid" = "172.16.0.0/12"
+    }
+    record6-1 = {
+      "address" = "2001:db8::ae1f:6bff:feb1:de80"
+      "domain" = "example.com"
+      "fqdn" = "test1.example.com."
+      "hostname" = "test1"
+      "id" = "2001:db8::ae1f:6bff:feb1:de80"
+      "record_fqdn" = "0.8.e.d.1.b.e.f.f.f.b.6.f.1.e.a.0.0.0.0.0.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."
+      "record_short" = "0.8.e.d.1.b.e.f.f.f.b.6.f.1.e.a.0.0.0.0.0.0.0.0"
+      "zoneid" = "2001:db8::/32"
+    }
 
 # Data source descriptions
 
@@ -108,6 +108,6 @@ All fully qualified fields are generated with an ending dot to avoid any confusi
 
 The reverse records will generally be like the following pattern:
 
-  revdns_record.name.record_short IN PTR revdns_record.name.fqdn
+    revdns_record.name.record_short IN PTR revdns_record.name.fqdn
 
 So, the `fqdn` field is the PTR record's target, while the `record_fqdn` is the DNS record's name.
