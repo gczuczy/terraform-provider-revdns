@@ -1,0 +1,15 @@
+---
+page_title: "Provider: RevDNS"
+description: |-
+  The RevDNS provider provides data sources for reverse DNS zone generations
+---
+
+# {{ .ProviderShortName | upper }} Provider
+
+Provides data sources for reverse DNS zone configurations, for both IPv4 and IPv6 zones. The module calculates the revese DNS zone names and record names as a data source, providing an easy way to reference the data in the actual DNS provider's configurations.
+
+At the time of the initial release, the goal is to simplify reverse DNS setup in a demo/PoC terraform project of mine. The implementation might not be complete, there might be bugs or incorrect behaviours at places. If you happen to find any, please kindly file either a bug report or feel free to open a PR on it.
+
+# Example usage
+
+{{ tffile "examples/main.tf" }}

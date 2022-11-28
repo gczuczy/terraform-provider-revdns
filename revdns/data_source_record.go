@@ -16,30 +16,37 @@ func dataSourceRecord() *schema.Resource {
 			"zoneid": {
 				Type: schema.TypeString,
 				Required: true,
+				Description: "The revdns_zone's ID where this record belongs to",
 			},
 			"address": {
 				Type: schema.TypeString,
 				Required: true,
+				Description: "IP address to generate the reverse record for",
 			},
 			"hostname": {
 				Type: schema.TypeString,
 				Required: true,
+				Description: "Short hostname associated with the IP",
 			},
 			"domain": {
 				Type: schema.TypeString,
 				Required: true,
+				Description: "The domain name to be used to generate the FQDN with",
 			},
 			"fqdn": {
 				Type: schema.TypeString,
 				Computed: true,
+				Description: "The Fully Qualified hostname",
 			},
 			"record_short": {
 				Type: schema.TypeString,
 				Computed: true,
+				Description: "Non-qualified reverse record name",
 			},
 			"record_fqdn": {
 				Type: schema.TypeString,
 				Computed: true,
+				Description: "Fully qualified reverse record name",
 			},
 		},
 	}

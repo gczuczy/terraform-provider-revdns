@@ -22,18 +22,22 @@ func dataSourceZone() *schema.Resource {
 			"cidr": {
 				Type: schema.TypeString,
 				Required: true,
+				Description: "The CIDR that the reverse zone is for",
 			},
 			"zone_name": {
 				Type: schema.TypeString,
 				Computed: true,
+				Description: "The generated reverse zone's name for the CIDR",
 			},
 			"netmask": {
 				Type: schema.TypeInt,
 				Computed: true,
+				Description: "The netmask of the zone",
 			},
 			"parts": {
 				Type: schema.TypeInt,
 				Computed: true,
+				Description: "Number of octets(v4)/quadlets(v6) in the reverse zone",
 			},
 		},
 	}
